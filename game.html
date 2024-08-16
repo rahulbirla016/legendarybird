@@ -155,26 +155,26 @@
             //this.timeVar = window.setInterval(this.incrementTime, 1000);
 
             // Pause Button
-            this.makePauseResumeButton.call(this);
+            //this.makePauseResumeButton.call(this);
 
-            this.input.on('gameobjectover', function(pointer, button){
-                this.setButtonFrame(button, 0);
-            });
+            // this.input.on('gameobjectover', function(pointer, button){
+            //     this.setButtonFrame(button, 0);
+            // });
 
-            this.input.on('gameobjectout', function(pointer, button){
-                this.setButtonFrame(button, 1);
-            });
+            // this.input.on('gameobjectout', function(pointer, button){
+            //     this.setButtonFrame(button, 1);
+            // });
 
-            this.input.on('gameobjectdown', function(pointer, button){
-                if (button.name == 'pause'){
-                    console.log("paused")
-                }
-                this.setButtonFrame(button, 0);
-            });
+            // this.input.on('gameobjectdown', function(pointer, button){
+            //     if (button.name == 'pause'){
+            //         console.log("paused")
+            //     }
+            //     this.setButtonFrame(button, 0);
+            // });
 
-            this.input.on('gameobjectup', function(pointer, button){
-                this.setButtonFrame(button, 0);
-            });
+            // this.input.on('gameobjectup', function(pointer, button){
+            //     this.setButtonFrame(button, 0);
+            // });
 
             // Pause and Resume
             this.events.on('pause', () =>
@@ -255,7 +255,7 @@
                 this.player.setVelocityY(-500);
             }
 
-            this.pauseResumeButtonText.x = 640 + (this.pauseResumeButton.width - this.pauseResumeButtonText.width)
+            //this.pauseResumeButtonText.x = 640 + (this.pauseResumeButton.width - this.pauseResumeButtonText.width)
 
             this.timeText.setText('Time: ' + timer.getElapsedSeconds())
         }
