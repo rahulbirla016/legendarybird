@@ -1,0 +1,341 @@
+<!doctype html> 
+<html lang="en"> 
+<head> 
+    <meta charset="UTF-8" />
+    <title>Bug Crawler</title>
+    <script src="//cdn.jsdelivr.net/npm/phaser@3.11.0/dist/phaser.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<script type="text/javascript">
+
+    let timer;
+
+    class SceneA extends Phaser.Scene {
+
+        player;
+        stars;
+        bombs;
+        platforms;
+        cursors;
+        score = 0;
+        gameOver = false;
+        scoreText;
+        timeText;
+        //time = 0;
+        timeVar;
+        pauseResumeButtonText;
+        pauseResumeButton;
+        is_paused = false;
+
+        constructor ()
+        {
+            super({ key: 'sceneA' });  
+        }
+        
+        preload ()
+        {
+            // Assets
+            this.load.image('sky', 'assets/sky.png');
+            this.load.image('ground', 'assets/platform.png');
+            this.load.image('star', 'assets/star.png');
+            this.load.image('bomb', 'assets/bomb.png');
+            this.load.spritesheet('dude', 'assets/dude.png',{ frameWidth: 32, frameHeight: 48 });
+            this.load.spritesheet('button', 'assets/ui/flixel-button.png', {frameWidth: 80, frameHeight: 20});
+            this.load.bitmapFont('nokia', 'assets/fonts/bitmap/nokia16black.png', 'assets/fonts/bitmap/nokia16black.xml' );
+        }
+
+        create ()
+        {
+            /* Initialization */
+
+            // Background Image for Game
+            this.add.image(400, 300, 'sky');
+
+            // Platform
+
+            // Platforms will be made up of a ground, and 3 ledges
+            this.platforms = this.physics.add.staticGroup();
+
+            // Create ground, and scaled
+            this.platforms.create(400, 568, 'ground').setScale(2).refreshBody();
+
+            // Ledges
+            this.platforms.create(600, 400, 'ground');
+            this.platforms.create(50, 250, 'ground');
+            this.platforms.create(750, 220, 'ground');
+
+            // Player
+            this.player = this.physics.add.sprite(100, 450, 'dude');
+
+            // Physics properties of player
+            this.player.setBounce(0.2);
+            this.player.setCollideWorldBounds(true);
+            // Player Gravity
+            this.player.body.setGravityY(300)
+
+            // Player Character Animations, turn, left and right
+            this.anims.create({
+                key: 'left',
+                frames: this.anims.generateFrameNumbers('dude',
+                                 { start: 0, end: 3 }),
+                frameRate: 10,
+                repeat: -1
+            });
+
+            this.anims.create({
+                key: 'turn',
+                frames: [ { key: 'dude', frame: 4 } ],
+                frameRate: 20
+            });
+
+            this.anims.create({
+                key: 'right',
+                frames: this.anims.generateFrameNumbers('dude', { start: 5, end: 8 }),
+                frameRate: 10,
+                repeat: -1
+            });
+
+            
+            // Cursor
+            this.cursors = this.input.keyboard.createCursorKeys();
+
+            // Stars, 12 in total
+            this.stars = this.physics.add.group({
+                key: 'star',
+                repeat: 11,
+                setXY: { x: 12, y: 0, stepX: 70 }
+            });
+
+            this.stars.children.iterate(function (child) {
+                // Each star gets slightly different bounce
+                child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
+            });
+
+            // Bombs  
+            this.bombs = this.physics.add.group();
+
+            // Score
+            this.scoreText = 
+            this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
+            // Time
+            this.timeText = this.add.text(550, 16, 'time: 0s', { fontSize: '32px', fill: '#000' });
+
+            timer = this.time.addEvent({
+                callbackScope: this, 
+                args: [],
+                delay: 50000, 
+                loop: false,
+                repeat: 0,
+                startAt: 0,
+                timeScale: 1,
+                paused: false
+            });
+
+            console.log("------------ tiem text")
+            console.log(this.timeText)
+
+            //this.printer_function();
+
+            // Collision with player and stars and bombs with platforms
+            this.physics.add.collider(this.player, this.platforms);
+            this.physics.add.collider(this.stars, this.platforms);
+            this.physics.add.collider(this.bombs, this.platforms);
+
+            // Check to see if the player collides with stars or bombs. If so, call functions.
+            this.physics.add.overlap(this.player, this.stars, this.collectStar, null, this);
+            this.physics.add.collider(this.player, this.bombs, this.hitBomb, null, this);
+
+            // Time
+            //this.timeVar = window.setInterval(this.incrementTime, 1000);
+
+            // Pause Button
+            this.makePauseResumeButton.call(this);
+
+            this.input.on('gameobjectover', function(pointer, button){
+                this.setButtonFrame(button, 0);
+            });
+
+            this.input.on('gameobjectout', function(pointer, button){
+                this.setButtonFrame(button, 1);
+            });
+
+            this.input.on('gameobjectdown', function(pointer, button){
+                if (button.name == 'pause'){
+                    console.log("paused")
+                }
+                this.setButtonFrame(button, 0);
+            });
+
+            this.input.on('gameobjectup', function(pointer, button){
+                this.setButtonFrame(button, 0);
+            });
+
+            // Pause and Resume
+            this.events.on('pause', () =>
+            {
+                console.log('Scene Paused');
+
+            });
+
+            this.events.on('resume', () => 
+            {
+                console.log('Scene Resumed')
+
+            });
+
+        }
+
+        // printer_function (){
+        //     console.log("----helooooooo----")
+        //     console.log(this.timeText)
+        // }
+
+        
+
+        
+        // incrementTime ()
+        // {
+        //     console.log("hello ---- ")
+        //     console.log(this.timeText)
+        //     console.log(this.scoreText)
+        //     console.log(this.time)
+
+        //     this.timeText.setText('Time: ' + this.time + 's');
+        //     this.time = this.time + 1;
+        // }
+
+        
+
+
+        
+
+        // makeButton (name, x, y){
+        //     const button = this.add.image(x,y, 'button', 0).setInteractive();
+        //     button.name  = 'Hello';
+        //     button.setScale(2,1.5);
+        //     var text = this.add.bitmapText(x - 40, y - 8, 'nokia', name, 16);
+        //     text.x += (button.width - text.width) / 2;
+        // }
+
+        update ()
+        {
+            
+            if (this.gameOver){
+                return;
+            }
+
+            // Keyboard Movements
+            if (this.cursors.left.isDown)
+            {
+                this.player.setVelocityX(-160);
+
+                this.player.anims.play('left', true);
+            }
+            else if (this.cursors.right.isDown)
+            {
+                this.player.setVelocityX(160);
+
+                this.player.anims.play('right', true);
+            }
+            else
+            {
+                this.player.setVelocityX(0);
+
+                this.player.anims.play('turn');
+            }
+
+            if (this.cursors.up.isDown && this.player.body.touching.down)
+            {
+                this.player.setVelocityY(-500);
+            }
+
+            this.pauseResumeButtonText.x = 640 + (this.pauseResumeButton.width - this.pauseResumeButtonText.width)
+
+            this.timeText.setText('Time: ' + timer.getElapsedSeconds())
+        }
+
+        setButtonFrame (button, frame)
+        {
+            button.frame = button.scene.textures.getFrame('button', frame);
+        }
+
+        makePauseResumeButton ()
+        {
+            this.pauseResumeButton = this.add.image(680, 395, 'button', 1).setInteractive();
+            this.pauseResumeButton.name = 'pause';
+            this.pauseResumeButton.setScale(2, 1.5);
+
+            this.pauseResumeButtonText = this.add.bitmapText(640, 387, 'nokia', '', 16);
+        }
+
+        hitBomb (player, bomb)
+        {
+            console.log("hello---")
+            console.log(this.gameOver)
+            this.physics.pause();
+
+            player.setTint(0xff0000);
+
+            player.anims.play('turn');
+
+            window.clearTimeout(this.timeVar)
+
+            this.gameOver = true;
+        }
+
+        collectStar (player, star)
+        {
+            star.disableBody(true, true);
+
+            this.score += 10;
+            this.scoreText.setText('Score: ' + this.score);
+
+            if (this.stars.countActive(true) === 0)
+            {
+                this.stars.children.iterate(function (child) {
+
+                    child.enableBody(true, child.x, 0, true, true);
+
+                });
+
+                var x = (player.x < 400) ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
+
+                var bomb = this.bombs.create(x, 16, 'bomb');
+                bomb.setBounce(1);
+                bomb.setCollideWorldBounds(true);
+                bomb.setVelocity(Phaser.Math.Between(-200, 200), 20);
+
+            }
+        }
+
+
+    }
+
+    // Game Config
+    var config = {
+        type: Phaser.AUTO,
+        width: 800,
+        height: 600,
+        physics: {
+            default: 'arcade',
+            arcade: {
+                gravity: { y: 300 },
+                debug: false
+            }
+        },
+        scene: SceneA
+    };
+
+    // Game Object
+    const game = new Phaser.Game(config);
+
+</script>
+
+</body>
+</html>
