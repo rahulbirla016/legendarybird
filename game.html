@@ -121,10 +121,9 @@
             this.bombs = this.physics.add.group();
 
             // Score
-            this.scoreText = 
-            this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
+            this.scoreText = this.add.text(16, 16, 'Score: 0', { fontSize: '32px', fill: '#000' });
             // Time
-            this.timeText = this.add.text(520, 16, 'time: 0s', { fontSize: '32px', fill: '#000' });
+            this.timeText = this.add.text(520, 16, 'timer: 0s', { fontSize: '32px', fill: '#000' });
 
             timer = this.time.addEvent({
                 callbackScope: this, 
@@ -137,8 +136,14 @@
                 paused: false
             });
 
+            //let myVar = setInterval(gameTimer, 1000);
+
+
+
+
+
             console.log("-- time text")
-            console.log(this.timeText)
+            //console.log(this.timeText)
 
             //this.printer_function();
 
@@ -253,7 +258,10 @@
 
             //this.pauseResumeButtonText.x = 640 + (this.pauseResumeButton.width - this.pauseResumeButtonText.width)
 
-            this.timeText.setText('Time: ' + timer.getElapsedSeconds())
+            this.timeText.setText('Timer: ' + timer.getElapsedSeconds().toFixed(2) + ' s')
+            //this.timeText.setText('Time:' + x)
+
+
         }
 
         setButtonFrame (button, frame)
