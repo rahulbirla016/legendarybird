@@ -2,7 +2,7 @@
 <html lang="en"> 
 <head> 
     <meta charset="UTF-8" />
-    <title>Bug Crawler</title>
+    <title>Legendary Bird</title>
     <script src="//cdn.jsdelivr.net/npm/phaser@3.11.0/dist/phaser.js"></script>
     <style type="text/css">
         body {
@@ -47,7 +47,8 @@
             this.load.image('bomb', 'assets/bomb.png');
             this.load.spritesheet('dude', 'assets/dude.png',{ frameWidth: 32, frameHeight: 48 });
             this.load.spritesheet('button', 'assets/ui/flixel-button.png', {frameWidth: 80, frameHeight: 20});
-            this.load.bitmapFont('nokia', 'assets/fonts/bitmap/nokia16black.png', 'assets/fonts/bitmap/nokia16black.xml' );
+            this.load.bitmapFont('nokia', 'assets/fonts/bitmap/nokia16black.png',
+                 'assets/fonts/bitmap/nokia16black.xml' );
         }
 
         create ()
@@ -101,7 +102,6 @@
                 repeat: -1
             });
 
-            
             // Cursor
             this.cursors = this.input.keyboard.createCursorKeys();
 
@@ -124,7 +124,7 @@
             this.scoreText = 
             this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
             // Time
-            this.timeText = this.add.text(550, 16, 'time: 0s', { fontSize: '32px', fill: '#000' });
+            this.timeText = this.add.text(520, 16, 'time: 0s', { fontSize: '32px', fill: '#000' });
 
             timer = this.time.addEvent({
                 callbackScope: this, 
@@ -137,7 +137,7 @@
                 paused: false
             });
 
-            console.log("------------ tiem text")
+            console.log("-- time text")
             console.log(this.timeText)
 
             //this.printer_function();
@@ -210,10 +210,6 @@
         //     this.time = this.time + 1;
         // }
 
-        
-
-
-        
 
         // makeButton (name, x, y){
         //     const button = this.add.image(x,y, 'button', 0).setInteractive();
