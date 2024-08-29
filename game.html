@@ -16,7 +16,7 @@
 
     let timer;
 
-    class SceneA extends Phaser.Scene {
+    class Game extends Phaser.Scene {
 
         player;
         stars;
@@ -35,7 +35,8 @@
 
         constructor ()
         {
-            super({ key: 'sceneA' });  
+            super({ key: 'game' });  
+            window.GAME = this;
         }
         
         preload ()
@@ -137,10 +138,6 @@
             });
 
             //let myVar = setInterval(gameTimer, 1000);
-
-
-
-
 
             console.log("-- time text")
             //console.log(this.timeText)
@@ -321,6 +318,48 @@
 
     }
 
+    class Preloader extends Phaser.Scene
+    {
+        constructor ()
+        {
+            super({key: 'preloader'});
+        }
+
+        preload ()
+        {
+            this.load.image('buttonBG', 'assets/sprites/button-bg.png');
+            this.load.image('buttonText', 'assets/sprites/button-text.png')
+        }
+
+        create ()
+        {
+            this.scene.start('mainmenu');
+        }
+    }
+    class MainMenu extends Phaser.Scene 
+    {
+        constructor ()
+        {
+            super({key: 'mainmenu'});
+            window.MENU = this;
+        }
+
+        create ()
+        {
+            const bg = this.add.image(0, 0, 'buttonBG');
+            const text = this.add.image(0, 0, 'buttonText');
+
+            this.add.container(400, 300, [bg, text]); 
+
+            bg.setInteractive();
+
+            bg.once('pointerup', function()
+            {
+                this.scene.start('game');
+            }, this);
+        }
+    }
+
     // Game Config
     var config = {
         type: Phaser.AUTO,
@@ -333,7 +372,7 @@
                 debug: false
             }
         },
-        scene: SceneA
+        scene: [Preloader, MainMenu, Game]
     };
 
     // Game Object
